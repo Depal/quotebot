@@ -1,9 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"github.com/Depal/quotebot/internal/entry"
+	"log"
+)
 
 func main() {
-	fmt.Println("Hello world")
+	app := entry.Initialize()
+
+	err := app.Setup()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		err = app.Teardown()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	app.Start()
 }
-
-

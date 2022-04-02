@@ -12,7 +12,9 @@ import (
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 type App struct {
@@ -22,7 +24,7 @@ type App struct {
 	services    *static.Services
 }
 
-func NewApp() *App {
+func Initialize() *App {
 	return &App{}
 }
 
@@ -148,6 +150,28 @@ func (a *App) initializeServices() (err error) {
 	a.services = &static.Services{
 		Rating: ratingService,
 		Bot:    botService,
+	}
+
+	return nil
+}
+
+func (a *App) Start() {
+	a.services.Bot.Start()
+
+	a.awaitQuitSignal()
+}
+
+func (a *App) awaitQuitSignal() {
+	a.log.Info("Working until a quit signal is received...")
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+}
+
+func (a *App) Teardown() (err error) {
+	err = a.db.Close()
+	if err != nil {
+		return err
 	}
 
 	return nil
