@@ -141,7 +141,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	s.log.Debug("replying")
 
-	_, err = s.bot.Send(message.Sender, file)
+	_, err = s.bot.Reply(message, file)
 	if err != nil {
 		s.log.Error(err)
 	}
