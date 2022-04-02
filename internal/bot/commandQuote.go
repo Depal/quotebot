@@ -16,6 +16,15 @@ import (
 func (s *Service) handleQuote(message *telebot.Message) {
 	s.announceCommand(static.CommandQuote, message)
 
+	payload := message.Payload
+	if payload != "" {
+		_, err := s.bot.Reply(message, "Сейчас работает только /q без аргументов (@Depal, сделай)")
+		if err != nil {
+			s.log.Fatal(err)
+			return
+		}
+	}
+
 	/*
 
 		response := fmt.Sprintf("Will create a sticker of message \"%s\" from %s", quoted.Text, quoted.Sender.FirstName)
