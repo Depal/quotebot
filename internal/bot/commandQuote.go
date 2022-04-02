@@ -23,6 +23,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 			s.log.Fatal(err)
 			return
 		}
+		return
 	}
 
 	/*
