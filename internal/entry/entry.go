@@ -8,6 +8,7 @@ import (
 	"github.com/Depal/quotebot/internal/rating"
 	"github.com/Depal/quotebot/pkg/logger"
 	"github.com/Depal/quotebot/pkg/migration"
+	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
