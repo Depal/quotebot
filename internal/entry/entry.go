@@ -6,6 +6,7 @@ import (
 	botstatic "github.com/Depal/quotebot/internal/bot/static"
 	"github.com/Depal/quotebot/internal/entry/static"
 	"github.com/Depal/quotebot/internal/rating"
+	"github.com/Depal/quotebot/internal/render"
 	"github.com/Depal/quotebot/pkg/logger"
 	"github.com/Depal/quotebot/pkg/migration"
 	_ "github.com/jackc/pgx/stdlib"
@@ -146,7 +147,8 @@ func (a *App) initializeServices() (err error) {
 	a.services = &static.Services{}
 
 	ratingService := rating.Initialize(a.log, a.db)
-	botService := bot.Initialize(a.log, ratingService)
+	renderService := render.Initialize(a.log)
+	botService := bot.Initialize(a.log, ratingService, renderService)
 
 	a.services = &static.Services{
 		Rating: ratingService,

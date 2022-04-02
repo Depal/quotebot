@@ -3,6 +3,7 @@ package bot
 import (
 	"github.com/Depal/quotebot/internal/bot/static"
 	"github.com/Depal/quotebot/internal/rating"
+	"github.com/Depal/quotebot/internal/render"
 	"github.com/Depal/quotebot/pkg/logger"
 	"github.com/tucnak/telebot"
 	"os"
@@ -12,13 +13,15 @@ import (
 type Service struct {
 	log    logger.ILogger
 	Rating *rating.Service
+	Render *render.Service
 	bot    *telebot.Bot
 }
 
-func Initialize(log logger.ILogger, rating *rating.Service) *Service {
+func Initialize(log logger.ILogger, rating *rating.Service, render *render.Service) *Service {
 	return &Service{
 		log:    log,
 		Rating: rating,
+		Render: render,
 	}
 }
 
