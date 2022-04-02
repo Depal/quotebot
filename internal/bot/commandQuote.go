@@ -72,13 +72,12 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	resizedUserpic := resize.Resize(96, 96, userpic, resize.Lanczos3)
 
-	width := 500.0
-	height := 200.0
+	width := 575.0
+	height := 175.0
 
 	dc := gg.NewContext(int(width), int(height))
 	dc.SetRGBA(1, 1, 1, 0)
 	dc.Clear()
-	dc.SetRGBA(0, 0, 0, 0)
 
 	s.log.Debug("drawing avatar")
 	dc.DrawCircle(53, 53, 48)
@@ -87,8 +86,8 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	dc.ResetClip()
 
 	s.log.Debug("drawing messagebox")
-	dc.SetRGB(50, 50, 75)
-	dc.DrawRoundedRectangle(110, 5, 380, 190, 32)
+	dc.SetRGB(20, 20, 20)
+	dc.DrawRoundedRectangle(110, 5, 455, 165, 32)
 	dc.Fill()
 
 	s.log.Debug("drawing username")
@@ -96,18 +95,24 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	face := truetype.NewFace(font, &truetype.Options{Size: 24})
+	face := truetype.NewFace(font, &truetype.Options{Size: 36})
 	dc.SetFontFace(face)
-	dc.SetRGB(0, 0, 0)
-	dc.DrawStringAnchored(quoted.Sender.FirstName, 170, 30, 0.5, 0.5)
+	dc.SetRGB(0, 0, 125)
+	dc.DrawStringWrapped(quoted.Sender.FirstName, 330, 26, 0.5, 0.5, 400, 1, gg.AlignLeft)
+	//dc.DrawString(quoted.Sender.FirstName, 130, 42)
 
 	s.log.Debug("drawing message")
-	face = truetype.NewFace(font, &truetype.Options{Size: 20})
+	text := quoted.Text
+	if len(text) > 80 {
+		text = text[:80] + "..."
+	}
+
+	face = truetype.NewFace(font, &truetype.Options{Size: 32})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 0)
-	dc.DrawStringWrapped(quoted.Text, 300, 80, 0.5, 0.5, 300, 1, gg.AlignLeft)
+	dc.DrawStringWrapped(text, 330, 100, 0.5, 0.5, 400, 1, gg.AlignLeft)
 
-	dc.SavePNG("test.png")
+	dc.SavePNG("sticker.png")
 
 	/*
 
@@ -132,7 +137,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 		}
 	*/
 
-	file := &telebot.Photo{File: telebot.FromDisk("test.png")}
+	file := &telebot.Sticker{File: telebot.FromDisk("sticker.png")}
 
 	s.log.Debug("replying")
 
