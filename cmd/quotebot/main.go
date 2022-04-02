@@ -20,5 +20,8 @@ func main() {
 		}
 	}()
 
-	app.Start()
+	err = app.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

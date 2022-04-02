@@ -156,10 +156,15 @@ func (a *App) initializeServices() (err error) {
 	return nil
 }
 
-func (a *App) Start() {
-	a.services.Bot.Start()
+func (a *App) Start() (err error) {
+	err = a.services.Bot.Start()
+	if err != nil {
+		return err
+	}
 
 	a.awaitQuitSignal()
+
+	return nil
 }
 
 func (a *App) awaitQuitSignal() {
