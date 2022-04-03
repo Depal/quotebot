@@ -53,8 +53,8 @@ func (s *Service) handleQuote(message *telebot.Message) {
 		s.log.Error(err)
 	}
 
-	s.log.Debug(len(userpics))
-	s.log.Debug(userpics[0].FileID)
+	//s.log.Debug(len(userpics))
+	//s.log.Debug(userpics[0].FileID)
 	//userpics[0].Send(s.bot, message.Sender, nil)
 
 	userpicUrl, err := s.bot.FileURLByID(userpics[0].FileID)
@@ -63,7 +63,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 		return
 	}
 
-	s.log.Debug(userpicUrl)
+	//s.log.Debug(userpicUrl)
 
 	res, err := http.Get(userpicUrl)
 	if err != nil {
@@ -72,7 +72,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	}
 	defer res.Body.Close()
 
-	s.log.Debug(res.Body)
+	//s.log.Debug(res.Body)
 
 	userpic, _, err := image.Decode(res.Body)
 	if err != nil {
