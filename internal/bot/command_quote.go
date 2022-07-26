@@ -104,7 +104,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	s.log.Debug("drawing username")
 
-	fontBytes, err := ioutil.ReadFile("fonts/Lobster.ttf")
+	fontBytes, err := ioutil.ReadFile("fonts/lucidagrande.ttf")
 	if err != nil {
 		s.log.Error(err)
 		return
