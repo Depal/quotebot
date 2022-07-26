@@ -10,7 +10,10 @@ import (
 	"image"
 	_ "image/jpeg"
 	"io/ioutil"
+	"math"
 	"net/http"
+	"os"
+	"strings"
 )
 
 func (s *Service) handleQuote(message *telebot.Message) {
@@ -48,37 +51,16 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	}
 
 	s.log.Debug("getting photos")
+	var userpic image.Image
+
 	userpics, err := s.bot.ProfilePhotosOf(quoted.Sender)
 	if err != nil || len(userpics) < 1 {
-		_, err := s.bot.Reply(message, "Не могу получить аватарку. Возможно, у цитируемого пользователя они скрыты или отсутствуют (@Depal, сделай)")
+		userpic, err = s.loadEmptyUserpic()
+	} else {
+		userpic, err = s.getUserpic(userpics[0].FileID)
+	}
+	if err != nil {
 		s.log.Error(err)
-		return
-	}
-
-	//s.log.Debug(len(userpics))
-	//s.log.Debug(userpics[0].FileID)
-	//userpics[0].Send(s.bot, message.Sender, nil)
-
-	userpicUrl, err := s.bot.FileURLByID(userpics[0].FileID)
-	if err != nil {
-		s.log.Fatal(err)
-		return
-	}
-
-	//s.log.Debug(userpicUrl)
-
-	res, err := http.Get(userpicUrl)
-	if err != nil {
-		s.log.Fatal(err)
-		return
-	}
-	defer res.Body.Close()
-
-	//s.log.Debug(res.Body)
-
-	userpic, _, err := image.Decode(res.Body)
-	if err != nil {
-		s.log.Fatal(err)
 		return
 	}
 
@@ -98,8 +80,19 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	dc.ResetClip()
 
 	s.log.Debug("drawing messagebox")
+	var messageboxWidth float64
+	var smallBubble bool
+	if len([]rune(quoted.Text)) < 5 {
+		s.log.Debug("small text")
+		messageboxWidth = 255
+		smallBubble = true
+	} else {
+		s.log.Debug("big text")
+		messageboxWidth = 455
+	}
+
 	dc.SetRGB(20, 20, 20)
-	dc.DrawRoundedRectangle(110, 5, 455, 165, 32)
+	dc.DrawRoundedRectangle(110, 5, messageboxWidth, 175, 32)
 	dc.Fill()
 
 	s.log.Debug("drawing username")
@@ -120,7 +113,9 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
-	face := truetype.NewFace(font, &truetype.Options{Size: 36})
+	sizeUsername := s.determineUsernameFontSize(quoted.Sender.FirstName, smallBubble)
+
+	face := truetype.NewFace(font, &truetype.Options{Size: sizeUsername})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 125)
 	dc.DrawStringWrapped(quoted.Sender.FirstName, 330, 26, 0.5, 0.5, 400, 1, gg.AlignLeft)
@@ -128,14 +123,16 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	s.log.Debug("drawing message")
 	text := quoted.Text
-	if len(text) > 80 {
-		text = text[:80] + "..."
-	}
+	//if len(text) > 80 {
+	//	text = text[:80] + "..."
+	//}
 
-	face = truetype.NewFace(font, &truetype.Options{Size: 32})
+	size := s.determineMessageFontSize(text)
+
+	face = truetype.NewFace(font, &truetype.Options{Size: size})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 0)
-	dc.DrawStringWrapped(text, 330, 100, 0.5, 0.5, 400, 1, gg.AlignLeft)
+	dc.DrawStringWrapped(text, 330, 110, 0.5, 0.5, 400, 1, gg.AlignLeft)
 
 	dc.SavePNG("sticker.png")
 
@@ -172,6 +169,75 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	}
 
 	s.finishCommand(static.CommandQuote)
+}
+
+func (s *Service) loadEmptyUserpic() (userpic image.Image, err error) {
+	file, err := os.Open("images/default_avatar.png")
+	if err != nil {
+		s.log.Error(err)
+		return userpic, err
+	}
+
+	userpic, _, err = image.Decode(file)
+	if err != nil {
+		s.log.Error(err)
+		return userpic, err
+	}
+
+	return userpic, nil
+}
+
+func (s *Service) getUserpic(fileID string) (userpic image.Image, err error) {
+	userpicUrl, err := s.bot.FileURLByID(fileID)
+	if err != nil {
+		s.log.Error(err)
+		return userpic, err
+	}
+
+	res, err := http.Get(userpicUrl)
+	if err != nil {
+		s.log.Error(err)
+		return userpic, err
+	}
+	defer res.Body.Close()
+
+	userpic, _, err = image.Decode(res.Body)
+	if err != nil {
+		s.log.Error(err)
+		return userpic, err
+	}
+
+	return userpic, err
+}
+
+func (s *Service) determineUsernameFontSize(username string, isSmallBubble bool) (fontSize float64) {
+	if isSmallBubble {
+		if len([]rune(username)) > 11 {
+			return 12
+		} else {
+			return 36
+		}
+	} else {
+		return 36
+	}
+}
+
+func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
+	words := len(strings.Split(text, " "))
+
+	baseSize := float64(50)
+
+	wordBatches := words / 3
+	s.log.Debug(wordBatches)
+
+	if wordBatches < 1 {
+		baseSize += 10
+	}
+
+	coefficient := 1.0 - (float64(wordBatches) * 0.1)
+	s.log.Debug(coefficient)
+
+	return baseSize * math.Max(0.1, coefficient)
 }
 
 /*
