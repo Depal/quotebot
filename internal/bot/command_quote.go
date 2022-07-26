@@ -3,13 +3,13 @@ package bot
 import (
 	"github.com/Depal/quotebot/internal/bot/static"
 	"github.com/fogleman/gg"
+	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
 	"github.com/tucnak/telebot"
-	"golang.org/x/image/font/gofont/goregular"
 	"image"
 	_ "image/jpeg"
-	"log"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -49,8 +49,10 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	s.log.Debug("getting photos")
 	userpics, err := s.bot.ProfilePhotosOf(quoted.Sender)
-	if err != nil {
+	if err != nil || len(userpics) < 1 {
+		_, err := s.bot.Reply(message, "Не могу получить аватарку. Возможно, у цитируемого пользователя они скрыты или отсутствуют (@Depal, сделай)")
 		s.log.Error(err)
+		return
 	}
 
 	//s.log.Debug(len(userpics))
@@ -101,10 +103,23 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	dc.Fill()
 
 	s.log.Debug("drawing username")
-	font, err := truetype.Parse(goregular.TTF)
+
+	fontBytes, err := ioutil.ReadFile("fonts/Lobster.otf")
 	if err != nil {
-		log.Fatal(err)
+		s.log.Error(err)
+		return
 	}
+
+	font, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		s.log.Error(err)
+		return
+	}
+
+	//font, err := truetype.Parse(goregular.TTF)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	face := truetype.NewFace(font, &truetype.Options{Size: 36})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 125)
