@@ -225,7 +225,7 @@ func (s *Service) determineUsernameFontSize(username string, isSmallBubble bool)
 func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
 	words := len(strings.Split(text, " "))
 
-	baseSize := float64(50)
+	baseSize := float64(48)
 
 	wordBatches := words / 3
 	s.log.Debug(wordBatches)
