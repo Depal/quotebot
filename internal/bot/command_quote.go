@@ -92,7 +92,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	}
 
 	dc.SetRGB(20, 20, 20)
-	dc.DrawRoundedRectangle(110, 5, messageboxWidth, 175, 32)
+	dc.DrawRoundedRectangle(110, 5, messageboxWidth, 165, 32)
 	dc.Fill()
 
 	s.log.Debug("drawing username")
