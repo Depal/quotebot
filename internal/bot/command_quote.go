@@ -16,7 +16,8 @@ import (
 	"strings"
 )
 
-const MaxTextLengthSymbols = 200
+const MaxTextLengthSymbols = 400
+const MaxWordBatches = 10
 
 func (s *Service) handleQuote(message *telebot.Message) {
 	s.announceCommand(static.CommandQuote, message)
@@ -204,8 +205,8 @@ func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
 
 	wordBatches := words / 3
 	s.log.Debug(wordBatches)
-	if wordBatches > 6 {
-		wordBatches = 6
+	if wordBatches > MaxWordBatches {
+		wordBatches = MaxWordBatches
 	}
 
 	if wordBatches < 1 {
