@@ -112,7 +112,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 		return
 	}
 
-	sizeUsername := s.determineUsernameFontSize(quoted.Sender.FirstName, smallBubble)
+	sizeUsername := s.determineUsernameFontSize(quoted.Sender.FirstName+" "+quoted.Sender.LastName, smallBubble)
 
 	face := truetype.NewFace(font, &truetype.Options{Size: sizeUsername})
 	dc.SetFontFace(face)
