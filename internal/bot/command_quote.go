@@ -17,7 +17,7 @@ import (
 )
 
 const MaxTextLengthSymbols = 400
-const MaxWordBatches = 6
+const MaxWordBatches = 7
 
 func (s *Service) handleQuote(message *telebot.Message) {
 	s.announceCommand(static.CommandQuote, message)
