@@ -213,7 +213,7 @@ func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
 		baseSize += 10
 	}
 
-	coefficient := 1.0 - (float64(wordBatches) * 0.1)
+	coefficient := 1.0 - (float64(wordBatches) * 0.08)
 	s.log.Debug(coefficient)
 
 	return baseSize * math.Max(0.1, coefficient)
