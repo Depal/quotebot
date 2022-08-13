@@ -16,6 +16,8 @@ import (
 	"strings"
 )
 
+const MaxTextLengthSymbols = 200
+
 func (s *Service) handleQuote(message *telebot.Message) {
 	s.announceCommand(static.CommandQuote, message)
 
@@ -109,10 +111,6 @@ func (s *Service) handleQuote(message *telebot.Message) {
 		return
 	}
 
-	//font, err := truetype.Parse(goregular.TTF)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 	sizeUsername := s.determineUsernameFontSize(quoted.Sender.FirstName, smallBubble)
 
 	face := truetype.NewFace(font, &truetype.Options{Size: sizeUsername})
@@ -123,9 +121,9 @@ func (s *Service) handleQuote(message *telebot.Message) {
 
 	s.log.Debug("drawing message")
 	text := quoted.Text
-	//if len(text) > 80 {
-	//	text = text[:80] + "..."
-	//}
+	if len([]rune(text)) > MaxTextLengthSymbols {
+		text = text[:MaxTextLengthSymbols] + "..."
+	}
 
 	size := s.determineMessageFontSize(text)
 
@@ -135,29 +133,6 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	dc.DrawStringWrapped(text, 330, 110, 0.5, 0.5, 400, 1, gg.AlignLeft)
 
 	dc.SavePNG("sticker.png")
-
-	/*
-
-		background := image.NewRGBA(image.Rect(0, 0, 320, 240))
-		blue := color.RGBA{25, 25, 50, 255}
-		draw.Draw(background, background.Bounds(), &image.Uniform{C: blue}, image.Point{}, draw.Src)
-		draw.Draw(background, background.Bounds(), resizedUserpic, image.Point{}, draw.Src)
-
-		addLabel(background, 50, 50, message.Sender.FirstName)
-
-		f, err := os.Create("test.png")
-		if err != nil {
-			s.log.Fatal(err)
-			return
-		}
-		defer f.Close()
-
-		err = png.Encode(f, background)
-		if err != nil {
-			s.log.Fatal(err)
-			return
-		}
-	*/
 
 	file := &telebot.Sticker{File: telebot.FromDisk("sticker.png")}
 
@@ -229,6 +204,9 @@ func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
 
 	wordBatches := words / 3
 	s.log.Debug(wordBatches)
+	if wordBatches > 6 {
+		wordBatches = 6
+	}
 
 	if wordBatches < 1 {
 		baseSize += 10
@@ -239,50 +217,3 @@ func (s *Service) determineMessageFontSize(text string) (fontSize float64) {
 
 	return baseSize * math.Max(0.1, coefficient)
 }
-
-/*
-func addLabel(img *image.RGBA, x, y int, label string) {
-	var (
-		dpi      = flag.Float64("dpi", 72, "screen resolution in Dots Per Inch")
-		fontfile = flag.String("fontfile", "../../testdata/luxisr.ttf", "filename of the ttf font")
-		//hinting  = flag.String("hinting", "none", "none | full")
-		size     = flag.Float64("size", 12, "font size in points")
-		//spacing  = flag.Float64("spacing", 1.5, "line spacing (e.g. 2 means double spaced)")
-		//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
-	)
-
-	// Read the font data.
-	fontBytes, err := ioutil.ReadFile(*fontfile)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	f, err := freetype.ParseFont(fontBytes)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Initialize the context.
-	fg, bg := image.Black, image.White
-	rgba := image.NewRGBA(image.Rect(0, 0, 640, 480))
-	draw.Draw(rgba, rgba.Bounds(), bg, image.Point{}, draw.Src)
-
-	c := freetype.NewContext()
-	c.SetDPI(*dpi)
-	c.SetFont(f)
-	c.SetFontSize(*size)
-	c.SetClip(rgba.Bounds())
-	c.SetDst(rgba)
-	c.SetSrc(fg)
-
-
-	c.SetDst(img)
-	sizeD := 12.0 // font size in pixels
-	pt := freetype.Pt(x, y+int(c.PointToFixed(sizeD)>>6))
-
-	if _, err := c.DrawString(label, pt); err != nil {
-		// handle error
-	}
-}
-*/
