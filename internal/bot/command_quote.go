@@ -95,7 +95,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	}
 
 	dc.SetRGB(20, 20, 20)
-	dc.DrawRoundedRectangle(110, 5, messageboxWidth, 165, 32)
+	dc.DrawRoundedRectangle(110, 5, messageboxWidth, 185, 32)
 	dc.Fill()
 
 	s.log.Debug("drawing username")
@@ -117,7 +117,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	face := truetype.NewFace(font, &truetype.Options{Size: sizeUsername})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 125)
-	dc.DrawStringWrapped(quoted.Sender.FirstName, 330, 26, 0.5, 0.5, 400, 1, gg.AlignLeft)
+	dc.DrawStringWrapped(quoted.Sender.FirstName, 330, 26, 0.5, 0.5, 420, 1, gg.AlignLeft)
 	//dc.DrawString(quoted.Sender.FirstName, 130, 42)
 
 	s.log.Debug("drawing message")
@@ -131,7 +131,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	face = truetype.NewFace(font, &truetype.Options{Size: size})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 0)
-	dc.DrawStringWrapped(text, 330, 110, 0.5, 0.5, 400, 1, gg.AlignLeft)
+	dc.DrawStringWrapped(text, 330, 110, 0.5, 0.5, 420, 1, gg.AlignLeft)
 
 	dc.SavePNG("sticker.png")
 
