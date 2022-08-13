@@ -131,7 +131,7 @@ func (s *Service) handleQuote(message *telebot.Message) {
 	face = truetype.NewFace(font, &truetype.Options{Size: size})
 	dc.SetFontFace(face)
 	dc.SetRGB(0, 0, 0)
-	dc.DrawStringWrapped(text, 330, 110, 0.5, 0.5, 400, 1, gg.AlignLeft)
+	dc.DrawStringWrapped(text, 330, 105, 0.5, 0.5, 400, 1, gg.AlignLeft)
 
 	dc.SavePNG("sticker.png")
 
